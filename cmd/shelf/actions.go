@@ -132,3 +132,29 @@ func TrackFile(cliCtx *cli.Context) error {
 
 	return nil
 }
+
+// CloneShelf clones the shelf from the given git repo url
+func CloneShelf(cliCtx *cli.Context) error {
+	home, err := GetHomeDirectory()
+	if err != nil {
+		return err
+	}
+	err = os.Chdir(home)
+	if err != nil {
+		return err
+	}
+
+	url := cliCtx.Args().First()
+	if url == "" {
+		return errors.New("Git repo url for the shelf has to be provided")
+	}
+
+	fmt.Printf("[*] Cloning from %s\n", url)
+
+	cmd := exec.Command("git", "clone", url)
+	err = cmd.Run()
+	if err != nil {
+		return err
+	}
+	return nil
+}
