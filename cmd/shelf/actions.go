@@ -234,3 +234,29 @@ func RestoreShelf(cliCtx *cli.Context) error {
 
 	return nil
 }
+
+// WhereShelf changes the directory to given shelf's directory
+func WhereShelf(cliCtx *cli.Context) error {
+	home, err := GetHomeDirectory()
+	if err != nil {
+		return err
+	}
+	shelfName := cliCtx.Args().First()
+	if shelfName == "" {
+		return errors.New("shelf name can't be empty")
+	}
+
+	shelfPath := path.Join(home, shelfName)
+
+	// Check if shelf exists
+	_, err = os.Stat(shelfPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("shelf named: %s doesn't exists", shelfName)
+		}
+		return err
+	}
+
+	fmt.Println(shelfPath)
+	return nil
+}

@@ -39,6 +39,12 @@ func main() {
 				Description: "Restores all the symlinks from the given shelf",
 				Action:      RestoreShelf,
 			},
+			{
+				Name:    "where",
+				Aliases: []string{"w"},
+				Usage:   "prints where the given shelf is",
+				Action:  WhereShelf,
+			},
 		},
 		Name:        "shelf",
 		Description: "A Good Symlinks Manager",
