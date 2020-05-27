@@ -46,7 +46,89 @@ func CreateShelf(cliCtx *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("[*] Created a shelf named: %s", shelfName)
+	// Create a shelf db
+	_, err = NewDB(shelfPath, shelfName)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("[*] Created a shelf named: %s\n", shelfName)
+
+	return nil
+}
+
+// TrackFile tracks the given file.
+// The file is moved to the shelf and a symlink is created in its place.
+// It stores the filename and symlink path in the shelf's db.
+func TrackFile(cliCtx *cli.Context) error {
+	// Get Home Directory path
+	home, err := GetHomeDirectory()
+	if err != nil {
+		return err
+	}
+
+	shelfName := cliCtx.Args().Get(0)
+	if shelfName == "" {
+		return errors.New("Shelf name has to be given")
+	}
+
+	filePath := cliCtx.Args().Get(1)
+	if filePath == "" {
+		return errors.New("File path to track can't be blank")
+	}
+
+	// Check if the given shelf exists
+	_, err = os.Stat(path.Join(home, shelfName))
+	if err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("Shelf named: %s doesn't exist", shelfName)
+		}
+		return err
+	}
+
+	// Check if the file exists and is not a symlink
+	stat, err := os.Lstat(filePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("%s doesn't exist", filePath)
+		}
+		return err
+	}
+	if stat.Mode()&os.ModeSymlink == os.ModeSymlink {
+		return fmt.Errorf("%s shouldn't be a symlink", filePath)
+	}
+
+	// Move file to the shelf
+	err = os.Rename(filePath, path.Join(home, shelfName, path.Base(filePath)))
+	if err != nil {
+		return err
+	}
+
+	// Create symlink
+	err = os.Symlink(path.Join(home, shelfName, path.Base(filePath)), filePath)
+	if err != nil {
+		// Since we can't create a symlink, we should put back the file which is moved
+		err = os.Rename(path.Join(home, shelfName, path.Base(filePath)), filePath)
+		if err != nil {
+			return err
+		}
+		return err
+	}
+
+	// Put it in the db
+	db, dbPath, err := GetDB(path.Join(home, shelfName))
+	if err != nil {
+		return err
+	}
+	db.AddLink(path.Base(filePath), filePath)
+	f, err := os.Create(dbPath)
+	if err != nil {
+		return err
+	}
+	err = db.Marshal(f)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
