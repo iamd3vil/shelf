@@ -177,3 +177,60 @@ func CloneShelf(cliCtx *cli.Context) error {
 	}
 	return nil
 }
+
+// RestoreShelf restores all the symlinks from the given shelf
+func RestoreShelf(cliCtx *cli.Context) error {
+	home, err := GetHomeDirectory()
+	if err != nil {
+		return err
+	}
+
+	shelfName := cliCtx.Args().First()
+	if shelfName == "" {
+		return errors.New("Shelf name can't be empty")
+	}
+
+	shelfPath := path.Join(home, shelfName)
+
+	// Check if the given shelf exists
+	_, err = os.Stat(shelfPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("Shelf named: %s doesn't exist", shelfName)
+		}
+		return err
+	}
+
+	// Read the db
+	db, _, err := GetDB(shelfPath)
+	if err != nil {
+		return err
+	}
+
+	// Loop over each link and put a symlink
+	for fName, lPath := range db.Links {
+		// Check if there is a file
+		// If there is no file with the file name in the shelf, skip over it
+		_, err := os.Stat(path.Join(shelfPath, fName))
+		if err != nil {
+			if os.IsNotExist(err) {
+				fmt.Printf("[*] Warning: File missing in the shelf: %s. Skipping...\n", fName)
+				continue
+			}
+			return err
+		}
+
+		err = os.Symlink(path.Join(shelfPath, fName), lPath)
+		if err != nil {
+			if os.IsExist(err) {
+				fmt.Printf("[*] Warning: There is a already a file at %s. Skipping restoring: %s\n", lPath, fName)
+				continue
+			}
+			return err
+		}
+	}
+
+	fmt.Printf("[*] Restored %s shelf\n", shelfName)
+
+	return nil
+}
