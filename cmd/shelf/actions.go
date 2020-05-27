@@ -124,10 +124,10 @@ Moving:
 	fmt.Printf("[*] Moved file at %s to %s\n", filePath, path.Join(home, shelfName, fileName))
 
 	// Create symlink
-	err = os.Symlink(path.Join(home, shelfName, path.Base(filePath)), filePath)
+	err = os.Symlink(path.Join(home, shelfName, fileName), filePath)
 	if err != nil {
 		// Since we can't create a symlink, we should put back the file which is moved
-		err = os.Rename(path.Join(home, shelfName, path.Base(filePath)), filePath)
+		err = os.Rename(path.Join(home, shelfName, fileName), filePath)
 		if err != nil {
 			return err
 		}
