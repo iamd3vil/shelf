@@ -98,11 +98,30 @@ func TrackFile(cliCtx *cli.Context) error {
 		return fmt.Errorf("%s shouldn't be a symlink", filePath)
 	}
 
+	fileName := path.Base(filePath)
+	// If the filename is given as an argument, save the file with that name
+	if cliCtx.Args().Get(2) != "" {
+		fileName = cliCtx.Args().Get(2)
+	}
+
+	// Check if there's already a file in the shelf with this fileName
+	_, err = os.Stat(path.Join(home, shelfName, fileName))
+	if err != nil {
+		if os.IsNotExist(err) {
+			goto Moving
+		}
+		return err
+	}
+	return fmt.Errorf("file with name %s already exists in the shelf. Please mention the filename to used for this file in the shelf", fileName)
+
+Moving:
 	// Move file to the shelf
-	err = os.Rename(filePath, path.Join(home, shelfName, path.Base(filePath)))
+	err = os.Rename(filePath, path.Join(home, shelfName, fileName))
 	if err != nil {
 		return err
 	}
+
+	fmt.Printf("[*] Moved file at %s to %s\n", filePath, path.Join(home, shelfName, fileName))
 
 	// Create symlink
 	err = os.Symlink(path.Join(home, shelfName, path.Base(filePath)), filePath)
@@ -120,7 +139,7 @@ func TrackFile(cliCtx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	db.AddLink(path.Base(filePath), filePath)
+	db.AddLink(fileName, filePath)
 	f, err := os.Create(dbPath)
 	if err != nil {
 		return err

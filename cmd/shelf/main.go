@@ -12,14 +12,14 @@ func main() {
 			{
 				Name:    "create",
 				Aliases: []string{"c"},
-				Usage:   "complete a task on the list",
+				Usage:   "creates a Shelf",
 				Action:  CreateShelf,
 			},
 			{
 				Name:        "track",
 				Aliases:     []string{"t"},
 				Usage:       "track a file",
-				ArgsUsage:   "[shelfname] [filepath]",
+				ArgsUsage:   "[shelfname] [filepath] [filename in shelf]",
 				Action:      TrackFile,
 				Description: "Tracks given file. The file is moved from the path and a symlink is created in it's place.",
 			},
