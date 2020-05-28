@@ -1,3 +1,80 @@
-# shelf
+# Shelf
 
-A Good Symlinks Manager
+A Good Symlinks Manager.
+
+An approach to manage symlinks that just works out of the box! No more wrangling with junk configs/systems to manage your dotfiles across multiple systems.
+
+## Usage
+
+```
+NAME:
+   shelf - A new cli application
+
+USAGE:
+   shelf [global options] command [command options] [arguments...]
+
+DESCRIPTION:
+   A Good Symlinks Manager
+
+COMMANDS:
+   create, c   creates a Shelf
+   track, t    track a file
+   clone, cl   clones a shelf
+   restore, r  restores all the links from a shelf
+   where, w    prints where the given shelf is
+   help, h     Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --help, -h  show help (default: false)
+```
+
+## Tutorial
+
+### Creating a shelf
+
+`shelf` can be used to create multiple shleves. A `shelf` is a collection of files you want to track together.
+
+You can create a shelf using `shelf create` command.
+
+```bash
+$ shelf create dotfiles
+```
+
+This creates a shelf under `$HOME/.shelves/dotfiles`.
+
+A shelf is just a directory with all the tracked files. Shelfs can be managed using either git or any other backup system.
+
+Also a `shelf.json` is created inside the shelf which keeps track of all the files and their symlink paths. This files needs to be maintained with other files.
+
+### Tracking a file
+
+To start tracking/adding a file to a shelf:
+```bash
+$ shelf track dotfiles ~/.gitconfig
+```
+
+This moves the file from `~/.gitconfig` to `~/.shelves/dotfiles/.gitconfig` and creates a symlink at `~/.gitconfig`.
+
+To move to a shelf directory(for example for running git commands or any other backup commands):
+
+```bash
+$ cd `shelf where dotfiles`
+```
+
+### Restoring a shelf
+
+A shelf can be cloned directly into the local system if the shelf has git repo. For cloning:
+
+```bash
+$ shelf clone https://github.com/iamd3vil/dotfiles.git
+```
+
+After cloning, for restoring all the symlinks:
+
+```bash
+$ shelf restore dotfiles
+```
+
+If there is already a file/symlink in the restoring path, it will print a warning and skips the file.
+
+For example, if only a single file needs to be restored, the restore command can be run again and the warnings for the other files can be ignored.
