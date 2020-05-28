@@ -2,7 +2,7 @@
 
 A Good Symlinks Manager.
 
-An approach to manage symlinks that just works out of the box! No more wrangling with junk configs/systems to manage your dotfiles across multiple systems.
+An approach to manage symlinks that just works out of the box! No more fighting with junk configs/systems to manage your dotfiles across multiple systems.
 
 ## Usage
 
