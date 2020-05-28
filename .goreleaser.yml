@@ -28,6 +28,10 @@ archives:
     amd64: x86_64
     arm: arm
     arm64: arm64
+release:
+  github:
+    owner: iamd3vil
+    name: shelf
 checksum:
   name_template: 'checksums.txt'
 snapshot:
