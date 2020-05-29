@@ -32,6 +32,34 @@ func main() {
 				Action:      CloneShelf,
 			},
 			{
+				Name:        "snapshot",
+				Aliases:     []string{"s"},
+				Usage:       "creates a snapshot of existing shelves",
+				Description: "Provides a way to snapshot your existing shelves to git or an archive file.",
+				Subcommands: []*cli.Command{
+					{
+						Name:      "git",
+						Aliases:   []string{"g"},
+						Usage:     "uses git to create and push a commit to remote to an existing repo",
+						ArgsUsage: "[shelfname]",
+						Action:    SnapshotGitShelf,
+					},
+					{
+						Name:      "archive",
+						Aliases:   []string{"a"},
+						Usage:     "creates an archive file of an existing shelf directory",
+						ArgsUsage: "[shelfname]",
+						Action:    SnapshotArchiveShelf,
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:  "output, o",
+								Usage: "Path to store the archive file.",
+							},
+						},
+					},
+				},
+			},
+			{
 				Name:        "restore",
 				Aliases:     []string{"r"},
 				Usage:       "restores all the links from a shelf",

@@ -20,6 +20,7 @@ COMMANDS:
    create, c   creates a Shelf
    track, t    track a file
    clone, cl   clones a shelf
+   snapshot, s  creates a snapshot of existing shelves
    restore, r  restores all the links from a shelf
    where, w    prints where the given shelf is
    help, h     Shows a list of commands or help for one command
@@ -60,6 +61,32 @@ To move to a shelf directory(for example for running git commands or any other b
 ```bash
 $ cd `shelf where dotfiles`
 ```
+
+### Snapshot a shelf
+
+A shelf can be `snapshotted` using `shelf` CLI itself. There are 2 modes to take a snapshot:
+
+#### Using git
+
+To keep a track of your `shelf` using `.git`, you can use
+
+```bash
+$ shelf snapshot git dotfiles
+```
+
+This will add all the existing files in your shelf directory, create an automated `commit` and push the commit to
+the remote branch.
+
+#### Using archive
+
+To use any other backup mechanism, `shelf` comes with a utility to create a `.tar.gz` archive for your shelf.
+
+```bash
+$ shelf snapshot archive --output /data/backup/shelves dotfiles
+```
+
+This will create an archive file of your shelf in `/data/backup/shelves/dotfiles.tar.gz` and you can use any backup tool
+to preserve this data for long term.
 
 ### Restoring a shelf
 
