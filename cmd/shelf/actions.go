@@ -12,8 +12,8 @@ import (
 
 // CreateShelf creates a new shelf
 func CreateShelf(cliCtx *cli.Context) error {
-	// Get Home Directory path
-	home, err := GetHomeDirectory()
+	// Get path to shelves directory.
+	shelfDir, err := GetOrCreateShelvesDir()
 	if err != nil {
 		return err
 	}
@@ -24,7 +24,7 @@ func CreateShelf(cliCtx *cli.Context) error {
 		return errors.New("Shelf name has to be given")
 	}
 
-	shelfPath := path.Join(home, shelfName)
+	shelfPath := path.Join(shelfDir, shelfName)
 
 	err = os.Mkdir(shelfPath, 0755)
 	if err != nil {
@@ -61,8 +61,8 @@ func CreateShelf(cliCtx *cli.Context) error {
 // The file is moved to the shelf and a symlink is created in its place.
 // It stores the filename and symlink path in the shelf's db.
 func TrackFile(cliCtx *cli.Context) error {
-	// Get Home Directory path
-	home, err := GetHomeDirectory()
+	// Get path to shelves directory.
+	shelfDir, err := GetOrCreateShelvesDir()
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func TrackFile(cliCtx *cli.Context) error {
 	}
 
 	// Check if the given shelf exists
-	_, err = os.Stat(path.Join(home, shelfName))
+	_, err = os.Stat(path.Join(shelfDir, shelfName))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return fmt.Errorf("Shelf named: %s doesn't exist", shelfName)
@@ -105,7 +105,7 @@ func TrackFile(cliCtx *cli.Context) error {
 	}
 
 	// Check if there's already a file in the shelf with this fileName
-	_, err = os.Stat(path.Join(home, shelfName, fileName))
+	_, err = os.Stat(path.Join(shelfDir, shelfName, fileName))
 	if err != nil {
 		if os.IsNotExist(err) {
 			goto Moving
@@ -116,18 +116,18 @@ func TrackFile(cliCtx *cli.Context) error {
 
 Moving:
 	// Move file to the shelf
-	err = os.Rename(filePath, path.Join(home, shelfName, fileName))
+	err = os.Rename(filePath, path.Join(shelfDir, shelfName, fileName))
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("[*] Moved file at %s to %s\n", filePath, path.Join(home, shelfName, fileName))
+	fmt.Printf("[*] Moved file at %s to %s\n", filePath, path.Join(shelfDir, shelfName, fileName))
 
 	// Create symlink
-	err = os.Symlink(path.Join(home, shelfName, fileName), filePath)
+	err = os.Symlink(path.Join(shelfDir, shelfName, fileName), filePath)
 	if err != nil {
 		// Since we can't create a symlink, we should put back the file which is moved
-		err = os.Rename(path.Join(home, shelfName, fileName), filePath)
+		err = os.Rename(path.Join(shelfDir, shelfName, fileName), filePath)
 		if err != nil {
 			return err
 		}
@@ -135,7 +135,7 @@ Moving:
 	}
 
 	// Put it in the db
-	db, dbPath, err := GetDB(path.Join(home, shelfName))
+	db, dbPath, err := GetDB(path.Join(shelfDir, shelfName))
 	if err != nil {
 		return err
 	}
@@ -154,11 +154,11 @@ Moving:
 
 // CloneShelf clones the shelf from the given git repo url
 func CloneShelf(cliCtx *cli.Context) error {
-	home, err := GetHomeDirectory()
+	shelfDir, err := GetOrCreateShelvesDir()
 	if err != nil {
 		return err
 	}
-	err = os.Chdir(home)
+	err = os.Chdir(shelfDir)
 	if err != nil {
 		return err
 	}
@@ -178,9 +178,50 @@ func CloneShelf(cliCtx *cli.Context) error {
 	return nil
 }
 
+// SnapshotGitShelf prepares a backup of existing shelf using `.git`
+func SnapshotGitShelf(cliCtx *cli.Context) error {
+	shelfDir, err := GetOrCreateShelvesDir()
+	if err != nil {
+		return err
+	}
+	shelfName := cliCtx.Args().First()
+	if shelfName == "" {
+		return errors.New("Shelf name can't be empty")
+	}
+	directory := path.Join(shelfDir, shelfName)
+	err = createGitSnapshot(directory)
+	if err != nil {
+		return fmt.Errorf("Error while creating a snapshot with git: %w", err)
+	}
+	return nil
+}
+
+// SnapshotArchiveShelf prepares a backup of existing shelf using a compressed archive file.
+func SnapshotArchiveShelf(cliCtx *cli.Context) error {
+	shelfDir, err := GetOrCreateShelvesDir()
+	if err != nil {
+		return err
+	}
+	shelfName := cliCtx.Args().First()
+	outputDir := cliCtx.String("output")
+	if shelfName == "" {
+		return errors.New("Shelf name can't be empty")
+	}
+	if outputDir == "" {
+		return errors.New("Output path can't be empty")
+	}
+	directory := path.Join(shelfDir, shelfName)
+	outputPath := path.Join(outputDir, fmt.Sprintf("%s.tar.gz", shelfName))
+	err = createArchiveSnapshot(directory, outputPath)
+	if err != nil {
+		return fmt.Errorf("Error while creating a snapshot with archive: %w", err)
+	}
+	return nil
+}
+
 // RestoreShelf restores all the symlinks from the given shelf
 func RestoreShelf(cliCtx *cli.Context) error {
-	home, err := GetHomeDirectory()
+	shelfDir, err := GetOrCreateShelvesDir()
 	if err != nil {
 		return err
 	}
@@ -190,7 +231,7 @@ func RestoreShelf(cliCtx *cli.Context) error {
 		return errors.New("Shelf name can't be empty")
 	}
 
-	shelfPath := path.Join(home, shelfName)
+	shelfPath := path.Join(shelfDir, shelfName)
 
 	// Check if the given shelf exists
 	_, err = os.Stat(shelfPath)
@@ -237,7 +278,7 @@ func RestoreShelf(cliCtx *cli.Context) error {
 
 // WhereShelf changes the directory to given shelf's directory
 func WhereShelf(cliCtx *cli.Context) error {
-	home, err := GetHomeDirectory()
+	home, err := GetOrCreateShelvesDir()
 	if err != nil {
 		return err
 	}
