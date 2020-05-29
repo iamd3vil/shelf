@@ -40,14 +40,14 @@ func main() {
 					{
 						Name:      "git",
 						Aliases:   []string{"g"},
-						Usage:     "Creates an automated commit to check in shelves directory in an existing git repo.",
+						Usage:     "uses git to create and push a commit to remote to an existing repo",
 						ArgsUsage: "[shelfname]",
 						Action:    SnapshotGitShelf,
 					},
 					{
 						Name:      "archive",
 						Aliases:   []string{"a"},
-						Usage:     "creates a snapshot of existing shelves",
+						Usage:     "creates an archive file of an existing shelf directory",
 						ArgsUsage: "[shelfname]",
 						Action:    SnapshotArchiveShelf,
 						Flags: []cli.Flag{
