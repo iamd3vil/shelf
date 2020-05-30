@@ -1,4 +1,4 @@
-# Shelf
+![Alt text](logo.png "Shelf Logo")
 
 A Good Symlinks Manager.
 
