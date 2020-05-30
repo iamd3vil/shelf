@@ -1,3 +1,5 @@
+![Alt text](logo.png "Logo")
+
 # Shelf
 
 A Good Symlinks Manager.
