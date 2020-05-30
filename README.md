@@ -1,6 +1,6 @@
 ![Alt text](logo.png "Shelf Logo")
 
-A Good Symlinks Manager.
+A Good Symlinks Manager. Swap files from any location with symlinks and manage them easily in one place
 
 An approach to manage symlinks that just works out of the box! No more fighting with junk configs/systems to manage your dotfiles across multiple systems.
 
