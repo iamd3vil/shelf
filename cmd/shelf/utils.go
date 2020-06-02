@@ -38,6 +38,10 @@ func GetOrCreateShelvesDir() (string, error) {
 }
 
 func getShelfDirPath() string {
+	return path.Join(getHomeDir(), shelvesDIR)
+}
+
+func getHomeDir() string {
 	var (
 		home string
 	)
@@ -47,7 +51,8 @@ func getShelfDirPath() string {
 			home = os.Getenv("HOME")
 		}
 	}
-	return path.Join(home, shelvesDIR)
+
+	return path.Clean(home)
 }
 
 // SOURCE: https://gist.github.com/mimoo/25fc9716e0f1353791f5908f94d6e726
