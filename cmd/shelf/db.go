@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"path"
+	"strings"
 )
 
 // DB is the db for shelf to store where each symlink is supposed to go.
@@ -27,7 +29,21 @@ func (db *DB) Marshal(w io.Writer) error {
 
 // AddLink adds the file and link paths to the DB
 func (db *DB) AddLink(filePath, linkPath string) {
-	db.Links[filePath] = linkPath
+	// If the linkpath is in the home directory, only put absolute path from home
+	home := getHomeDir()
+	if strings.HasPrefix(linkPath, home) {
+
+		// Strip home directory
+		l := strings.TrimPrefix(linkPath, home)
+
+		// Strip any extra slashes at the prefix
+		l = strings.TrimPrefix(l, "/")
+
+		fmt.Printf("linkpath: %s, home: %s\n", linkPath, home)
+		db.Links[filePath] = path.Clean(l)
+		return
+	}
+	db.Links[filePath] = path.Clean(linkPath)
 }
 
 // NewDB creates a shelf DB
