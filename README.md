@@ -11,19 +11,20 @@ NAME:
    shelf - A new cli application
 
 USAGE:
-   shelf [global options] command [command options] [arguments...]
+   shelf.bin [global options] command [command options] [arguments...]
 
 DESCRIPTION:
    A Good Symlinks Manager
 
 COMMANDS:
-   create, c   creates a Shelf
-   track, t    track a file
-   clone, cl   clones a shelf
+   create, c    creates a Shelf
+   track, t     track a file
+   clone, cl    clones a shelf
    snapshot, s  creates a snapshot of existing shelves
-   restore, r  restores all the links from a shelf
-   where, w    prints where the given shelf is
-   help, h     Shows a list of commands or help for one command
+   restore, r   restores all the links from a shelf
+   where, w     prints where the given shelf is
+   list, ls     lists all the files tracked by shelf
+   help, h      Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
    --help, -h  show help (default: false)
