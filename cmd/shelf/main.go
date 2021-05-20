@@ -73,6 +73,12 @@ func main() {
 				Usage:   "prints where the given shelf is",
 				Action:  WhereShelf,
 			},
+			{
+				Name:    "list",
+				Aliases: []string{"ls"},
+				Usage:   "lists all the files tracked by shelf",
+				Action:  GetListOfFilesInShelf,
+			},
 		},
 		Name:        "shelf",
 		Description: "A Good Symlinks Manager",

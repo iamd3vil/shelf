@@ -21,7 +21,7 @@ func CreateShelf(cliCtx *cli.Context) error {
 	shelfName := cliCtx.Args().First()
 
 	if shelfName == "" {
-		return errors.New("Shelf name has to be given")
+		return errors.New("shelf name has to be given")
 	}
 
 	shelfPath := path.Join(shelfDir, shelfName)
@@ -29,7 +29,7 @@ func CreateShelf(cliCtx *cli.Context) error {
 	err = os.Mkdir(shelfPath, 0755)
 	if err != nil {
 		if os.IsExist(err) {
-			return fmt.Errorf("Shelf named: \"%s\" already exist", shelfName)
+			return fmt.Errorf("shelf named: \"%s\" already exist", shelfName)
 		}
 		return err
 	}
@@ -69,19 +69,19 @@ func TrackFile(cliCtx *cli.Context) error {
 
 	shelfName := cliCtx.Args().Get(0)
 	if shelfName == "" {
-		return errors.New("Shelf name has to be given")
+		return errors.New("shelf name has to be given")
 	}
 
 	filePath := cliCtx.Args().Get(1)
 	if filePath == "" {
-		return errors.New("File path to track can't be blank")
+		return errors.New("file path to track can't be blank")
 	}
 
 	// Check if the given shelf exists
 	_, err = os.Stat(path.Join(shelfDir, shelfName))
 	if err != nil {
 		if os.IsNotExist(err) {
-			return fmt.Errorf("Shelf named: %s doesn't exist", shelfName)
+			return fmt.Errorf("shelf named: %s doesn't exist", shelfName)
 		}
 		return err
 	}
@@ -165,7 +165,7 @@ func CloneShelf(cliCtx *cli.Context) error {
 
 	url := cliCtx.Args().First()
 	if url == "" {
-		return errors.New("Git repo url for the shelf has to be provided")
+		return errors.New("git repo url for the shelf has to be provided")
 	}
 
 	fmt.Printf("[*] Cloning from %s\n", url)
@@ -186,12 +186,12 @@ func SnapshotGitShelf(cliCtx *cli.Context) error {
 	}
 	shelfName := cliCtx.Args().First()
 	if shelfName == "" {
-		return errors.New("Shelf name can't be empty")
+		return errors.New("shelf name can't be empty")
 	}
 	directory := path.Join(shelfDir, shelfName)
 	err = createGitSnapshot(directory)
 	if err != nil {
-		return fmt.Errorf("Error while creating a snapshot with git: %w", err)
+		return fmt.Errorf("error while creating a snapshot with git: %w", err)
 	}
 	return nil
 }
@@ -205,16 +205,16 @@ func SnapshotArchiveShelf(cliCtx *cli.Context) error {
 	shelfName := cliCtx.Args().First()
 	outputDir := cliCtx.String("output")
 	if shelfName == "" {
-		return errors.New("Shelf name can't be empty")
+		return errors.New("shelf name can't be empty")
 	}
 	if outputDir == "" {
-		return errors.New("Output path can't be empty")
+		return errors.New("output path can't be empty")
 	}
 	directory := path.Join(shelfDir, shelfName)
 	outputPath := path.Join(outputDir, fmt.Sprintf("%s.tar.gz", shelfName))
 	err = createArchiveSnapshot(directory, outputPath)
 	if err != nil {
-		return fmt.Errorf("Error while creating a snapshot with archive: %w", err)
+		return fmt.Errorf("error while creating a snapshot with archive: %w", err)
 	}
 	return nil
 }
@@ -228,7 +228,7 @@ func RestoreShelf(cliCtx *cli.Context) error {
 
 	shelfName := cliCtx.Args().First()
 	if shelfName == "" {
-		return errors.New("Shelf name can't be empty")
+		return errors.New("shelf name can't be empty")
 	}
 
 	shelfPath := path.Join(shelfDir, shelfName)
@@ -237,7 +237,7 @@ func RestoreShelf(cliCtx *cli.Context) error {
 	_, err = os.Stat(shelfPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return fmt.Errorf("Shelf named: %s doesn't exist", shelfName)
+			return fmt.Errorf("shelf named: %s doesn't exist", shelfName)
 		}
 		return err
 	}
@@ -311,5 +311,29 @@ func WhereShelf(cliCtx *cli.Context) error {
 	}
 
 	fmt.Println(shelfPath)
+	return nil
+}
+
+func GetListOfFilesInShelf(cliCtx *cli.Context) error {
+	home, err := GetOrCreateShelvesDir()
+	if err != nil {
+		return err
+	}
+	shelfName := cliCtx.Args().First()
+	if shelfName == "" {
+		return errors.New("shelf name can't be empty")
+	}
+
+	shelfPath := path.Join(home, shelfName)
+
+	db, _, err := GetDB(shelfPath)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("List of files tracked in shelf %s are:\n", shelfName)
+	links := db.GetLinks()
+	for _, v := range links {
+		fmt.Println(v)
+	}
 	return nil
 }

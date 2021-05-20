@@ -109,16 +109,16 @@ func createGitSnapshot(dir string) error {
 	}
 	_, err = w.Add(".")
 	if err != nil {
-		return fmt.Errorf("Error while adding all files: %w", err)
+		return fmt.Errorf("error while adding all files: %w", err)
 	}
 	commitMsg := fmt.Sprintf("snapshot: Automatic commit for snapshot taken at %s", time.Now().Format("Mon Jan _2 15:04:05 2006"))
 	_, err = w.Commit(commitMsg, &git.CommitOptions{})
 	if err != nil {
-		return fmt.Errorf("Error while creating a commit: %s", err.Error())
+		return fmt.Errorf("error while creating a commit: %s", err.Error())
 	}
 	err = r.Push(&git.PushOptions{})
 	if err != nil {
-		return fmt.Errorf("Error while pushing the commit: %w", err)
+		return fmt.Errorf("error while pushing the commit: %w", err)
 	}
 	return nil
 }
@@ -129,10 +129,10 @@ func createArchiveSnapshot(dir string, output string) error {
 	// write the .tar.gz
 	fileToWrite, err := os.OpenFile(output, os.O_CREATE|os.O_RDWR, os.FileMode(0755))
 	if err != nil {
-		return fmt.Errorf("Error while creating output file: %w", err)
+		return fmt.Errorf("error while creating output file: %w", err)
 	}
 	if _, err := io.Copy(fileToWrite, &buf); err != nil {
-		return fmt.Errorf("Error while writing data to output: %w", err)
+		return fmt.Errorf("error while writing data to output: %w", err)
 	}
 	return nil
 }

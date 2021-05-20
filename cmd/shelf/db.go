@@ -10,7 +10,7 @@ import (
 )
 
 // DB is the db for shelf to store where each symlink is supposed to go.
-// This is a JSON File generally stored in
+// This is a JSON File generally stored in the shelf directory.
 type DB struct {
 	Name  string            `json:"name"`
 	Links map[string]string `json:"links"`
@@ -44,6 +44,10 @@ func (db *DB) AddLink(filePath, linkPath string) {
 		return
 	}
 	db.Links[filePath] = path.Clean(linkPath)
+}
+
+func (db *DB) GetLinks() map[string]string {
+	return db.Links
 }
 
 // NewDB creates a shelf DB
