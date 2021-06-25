@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"os"
 	"path"
@@ -39,7 +38,6 @@ func (db *DB) AddLink(filePath, linkPath string) {
 		// Strip any extra slashes at the prefix
 		l = strings.TrimPrefix(l, "/")
 
-		fmt.Printf("linkpath: %s, home: %s\n", linkPath, home)
 		db.Links[filePath] = path.Clean(l)
 		return
 	}

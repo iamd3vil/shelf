@@ -263,7 +263,6 @@ func RestoreShelf(cliCtx *cli.Context) error {
 
 		// If the symlink path in db is absolute, it will be put in home directory
 		if !path.IsAbs(lPath) {
-			fmt.Printf("lPath is abs: ")
 			home := getHomeDir()
 			lPath = path.Join(home, lPath)
 		}
